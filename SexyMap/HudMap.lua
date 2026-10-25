@@ -7,6 +7,15 @@ local db
 local updateFrame = CreateFrame("Frame")
 local updateRotations
 
+local function reparentAstrolabe(parent)
+	for _, major in ipairs({"Astrolabe-0.4", "Astrolabe-0.4-Sirus"}) do
+		local found, Astrolabe = pcall(DongleStub, major)
+		if found and Astrolabe.processingFrame then
+			Astrolabe.processingFrame:SetParent(parent)
+		end
+	end
+end
+
 local onShow = function(self)
 	self.rotSettings = GetCVar("rotateMinimap")
 	SetCVar("rotateMinimap", "1")
@@ -26,12 +35,11 @@ local onShow = function(self)
 	
 	if TomTom and TomTom.ReparentMinimap then
 		TomTom:ReparentMinimap(HudMapCluster)
-		local Astrolabe = DongleStub("Astrolabe-0.4")
-		Astrolabe.processingFrame:SetParent(HudMapCluster)
+		reparentAstrolabe(HudMapCluster)
 	end
 	
 	if _G.GetMinimapShape and not mod:IsHooked("GetMinimapShape") then
-		mod:Hook("GetMinimapShape")
+		mod:RawHook("GetMinimapShape")
 	end
 	
 	updateFrame:SetScript("OnUpdate", updateRotations)
@@ -56,8 +64,7 @@ local onHide = function(self, force)
 	
 	if TomTom and TomTom.ReparentMinimap then
 		TomTom:ReparentMinimap(Minimap)
-		local Astrolabe = DongleStub("Astrolabe-0.4")
-		Astrolabe.processingFrame:SetParent(Minimap)		
+		reparentAstrolabe(Minimap)
 	end
 	
 	if _G.GetMinimapShape and mod:IsHooked("GetMinimapShape") then
@@ -309,8 +316,8 @@ function mod:OnInitialize()
 	HudMapCluster:Hide()	
 	HudMapCluster:SetScript("OnShow", onShow)
 	HudMapCluster:SetScript("OnHide", onHide)	
-	self:HookScript(Minimap, "OnShow", "Minimap_OnShow")
-	self:HookScript(MinimapCluster, "OnShow", "Minimap_OnShow")
+	self:SecureHookScript(Minimap, "OnShow", "Minimap_OnShow")
+	self:SecureHookScript(MinimapCluster, "OnShow", "Minimap_OnShow")
 	
 	parent:RegisterModuleOptions(modName, options, modName)
 	self:UpdateColors()
@@ -330,7 +337,7 @@ do
 		total = total + t
 		if total < target then return end
 		while total > target do total = total - target end
-		local bearing = GetPlayerFacing()
+		local bearing = GetPlayerFacing() or 0
 		for k, v in ipairs(directions) do
 			local x, y = math.sin(v.rad + bearing), math.cos(v.rad + bearing)
 			v:ClearAllPoints()

@@ -50,7 +50,7 @@ function mod:OnEnable()
 	Minimap:SetScript("OnMouseUp", mod.Minimap_OnClick)
 	self:HookAll(MinimapCluster, "OnEnter", MinimapCluster:GetChildren())
 	if not self:IsHooked(Minimap, "OnEnter") then
-		self:HookScript(Minimap, "OnEnter")
+		self:SecureHookScript(Minimap, "OnEnter")
 	end
 	
 	self.db.RegisterCallback(self, "OnProfileChanged", "ReloadAddon")
@@ -64,10 +64,10 @@ function mod:ReloadAddon()
 end
 
 function mod:HookAll(frame, script, ...)
-	self:HookScript(frame, script)
+	self:SecureHookScript(frame, script)
 	for i = 1, select("#", ...) do
 		local f = select(i, ...)
-		self:HookScript(f, script)
+		self:SecureHookScript(f, script)
 	end
 end
 

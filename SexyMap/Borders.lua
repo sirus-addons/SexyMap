@@ -52,7 +52,7 @@ local GetPlayerBearing = _G.GetPlayerFacing
 		
 local function RotateTexture(self, inc, set)
 	if type(inc) == "string" then
-		local bearing = GetPlayerBearing()
+		local bearing = GetPlayerBearing() or 0
 		if inc == "normal" then
 			bearing = bearing * -1
 		end
@@ -951,8 +951,14 @@ end
 function mod:Update()
 	if db.hideBlizzard then
 		MinimapBorder:Hide()
+		if EditModeManagerFrame then
+			MinimapCompassTexture:Hide()
+		end
 	else
 		MinimapBorder:Show()
+		if EditModeManagerFrame then
+			MinimapCompassTexture:Show()
+		end
 	end
 end
 

@@ -111,6 +111,10 @@ local movables = {
 	["Boss1TargetFrame"] = L["Boss frames (Gunships, etc)"],
 }
 local movers = {}
+if EditModeManagerFrame then
+	wipe(movables)
+	options.args.lock = nil
+end
 
 mod.options = options
 
@@ -120,11 +124,13 @@ function mod:OnInitialize()
 	parent:RegisterModuleOptions("Movers", options, "Movers")
 	
 	MinimapBorderTop:Hide()
-	Minimap:RegisterForDrag("LeftButton")
-	MinimapZoneTextButton:RegisterForDrag("LeftButton")
+	if not EditModeManagerFrame then
+		Minimap:RegisterForDrag("LeftButton")
+		MinimapZoneTextButton:RegisterForDrag("LeftButton")
+	end
 	self:SetLock(db.lock)
 	
-	self:SecureHook("updateContainerFrameAnchors", "CreateMoversAndSetMovables")	
+	self:SecureHook(UpdateContainerFrameAnchors and "UpdateContainerFrameAnchors" or "updateContainerFrameAnchors", "CreateMoversAndSetMovables")
 end
 
 function mod:OnEnable()
@@ -135,7 +141,9 @@ function mod:OnEnable()
 	if not _G.Capping then
 		self:RegisterEvent("UPDATE_WORLD_STATES")
 		self:UPDATE_WORLD_STATES()
-		movables["VehicleSeatIndicator"] = L["Vehicle Seat"]
+		if not EditModeManagerFrame then
+			movables["VehicleSeatIndicator"] = L["Vehicle Seat"]
+		end
 	end
 	self:CreateMoversAndSetMovables()
 end
@@ -243,6 +251,7 @@ do
 	end
 
 	function mod:SetLock(v)
+		if EditModeManagerFrame then return end
 		if v then
 			Minimap:SetScript("OnDragStart", nil)
 			Minimap:SetScript("OnDragStop", nil)

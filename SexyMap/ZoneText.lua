@@ -148,6 +148,7 @@ function mod:OnInitialize()
 	
 	MinimapZoneText:ClearAllPoints()
 	MinimapZoneText:SetAllPoints()
+	MinimapZoneText:SetJustifyH("CENTER")
 	MinimapZoneTextButton:SetHeight(26)
 	MinimapZoneTextButton:SetBackdrop(parent.backdrop)
 	MinimapZoneTextButton:SetFrameStrata("MEDIUM")
