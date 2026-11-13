@@ -175,6 +175,7 @@ function mod:SetOnHover()
 end
 
 function mod:Update()
+	MinimapZoneTextButton.ignoreInLayout = true
 	MinimapZoneTextButton:ClearAllPoints()
 	MinimapZoneTextButton:SetPoint("BOTTOM", Minimap, "TOP", db.xOffset, db.yOffset)
 	MinimapZoneTextButton:SetBackdropColor(db.bgColor.r, db.bgColor.g, db.bgColor.b, db.bgColor.a)

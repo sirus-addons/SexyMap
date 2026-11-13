@@ -22,6 +22,9 @@ local options = {
 			end,
 			set = function(info, v)
 				db.autoZoom = v
+				if v == 0 then
+					mod:CancelTimer(mod.timer, true)
+				end
 			end
 		}
 	}	

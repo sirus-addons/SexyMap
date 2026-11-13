@@ -449,6 +449,8 @@ local options = {
 					end,
 					set = function(info, v)
 						mod.db.global.userPresets[v] = nil
+						userPresets[v] = nil
+						presets[v] = parent.borderPresets[v] and v or nil
 					end
 				},
 			}

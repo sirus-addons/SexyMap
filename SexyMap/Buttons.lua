@@ -42,6 +42,7 @@ do
 		MinimapZoomIn = true,
 		MinimapZoomOut = true,
 		MiniMapVoiceChatFrame = true,
+		MiniMapInstanceDifficulty = true,
 	}	
 	function captureNewChildren()
 		local children = getChildren()
@@ -304,6 +305,7 @@ function mod:OnEnable()
 	if EditModeManagerFrame then
 		self:SecureHookScript(Minimap, "OnEnter", "UpdateZoomButtons")
 		self:SecureHookScript(Minimap, "OnLeave", "UpdateZoomButtons")
+		self:SecureHook(MinimapCluster, "SetHeaderUnderneath", "UpdateDraggables")
 	end
 
 	-- Try to capture new buttons periodically
@@ -535,10 +537,12 @@ do
 	
 	function mod:ReleaseMovables()
 		for frame, on in pairs(movables) do
-			self:UnhookAll(frame)
+			self:Unhook(frame, "OnDragStart")
+			self:Unhook(frame, "OnDragStop")
 			frame.sexyMapMovable = nil
 			movables[frame] = nil
 		end
+		lastChildCount = 0
 	end
 	
 	function mod:ReleaseDrag()
