@@ -63,7 +63,7 @@ local options = {
 			hasAlpha = true,
 			get = function()
 				local c = db.fontColor
-				local r, g, b, a = c.r or 0, c.g or 0, c.b or 0, c.a or 1
+				local r, g, b, a = c.r or 1, c.g or 1, c.b or 1, c.a or 1
 				return r, g, b, a
 			end,
 			set = function(info, r, g, b, a)

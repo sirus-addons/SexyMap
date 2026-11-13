@@ -42,6 +42,7 @@ do
 		MinimapZoomIn = true,
 		MinimapZoomOut = true,
 		MiniMapVoiceChatFrame = true,
+		MiniMapInstanceDifficulty = true,
 	}	
 	function captureNewChildren()
 		local children = getChildren()
@@ -234,6 +235,10 @@ do
 					  }
 	}
 
+	if EditModeManagerFrame then
+		buttons.worldmap, buttons.close, buttons.direction, buttons.voice, buttons.pvp, buttons.lfg = nil, nil, nil, nil, nil, nil
+	end
+
 	local hideValues = {
 		["always"] = L["Always"],
 		["never"] = L["Never"],
@@ -297,6 +302,12 @@ function mod:OnEnable()
 
 	self:FixTrackingAnchoring()
 	
+	if EditModeManagerFrame then
+		self:SecureHookScript(Minimap, "OnEnter", "UpdateZoomButtons")
+		self:SecureHookScript(Minimap, "OnLeave", "UpdateZoomButtons")
+		self:SecureHook(MinimapCluster, "SetHeaderUnderneath", "UpdateDraggables")
+	end
+
 	-- Try to capture new buttons periodically
 	self:ScheduleRepeatingTimer("MakeMovables", 1)
 	self:MakeMovables()
@@ -323,7 +334,9 @@ function mod:FixTrackingAnchoring()
 	local mx, my = Minimap:GetCenter()
 	local dx, dy = x - mx, y - my
 	
-	MiniMapTracking.Hide = function() end
+	if not self:IsHooked(MiniMapTracking, "Hide") then
+		self:SecureHook(MiniMapTracking, "Hide", function() MiniMapTracking:Show() end)
+	end
 	MiniMapTracking:Show()
 	
 	MiniMapTracking:SetParent(UIParent)
@@ -344,6 +357,17 @@ function mod:CaptureButtons()
 			mod:addButtonOptions(k, v)
 		end
 		self:Update()
+	end
+end
+
+function mod:UpdateZoomButtons()
+	local hide = db.controlVisibility and db.zoom and db.zoom.hide
+	if hide == "never" then
+		MinimapZoomIn:Hide()
+		MinimapZoomOut:Hide()
+	elseif hide == "always" then
+		MinimapZoomIn:Show()
+		MinimapZoomOut:Show()
 	end
 end
 
@@ -406,7 +430,9 @@ do
 	
 	function mod:AddMouseWheelZoom()
 		Minimap:EnableMouseWheel()
-		Minimap:SetScript("OnMouseWheel", wheel)
+		if not EditModeManagerFrame then
+			Minimap:SetScript("OnMouseWheel", wheel)
+		end
 	end
 end
 
@@ -511,10 +537,12 @@ do
 	
 	function mod:ReleaseMovables()
 		for frame, on in pairs(movables) do
-			self:UnhookAll(frame)
+			self:Unhook(frame, "OnDragStart")
+			self:Unhook(frame, "OnDragStop")
 			frame.sexyMapMovable = nil
 			movables[frame] = nil
 		end
+		lastChildCount = 0
 	end
 	
 	function mod:ReleaseDrag()

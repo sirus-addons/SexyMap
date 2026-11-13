@@ -117,6 +117,9 @@ do
 
 	function mod:OnEnable()
 		self:HookAll(MinimapCluster, "OnEnter", MinimapCluster:GetChildren())
+		if not self:IsHooked(Minimap, "OnEnter") then
+			self:SecureHookScript(Minimap, "OnEnter")
+		end
 		startFade(MinimapCluster, 0.2, db.normalOpacity)
 	end
 
@@ -153,10 +156,10 @@ do
 end
 
 function mod:HookAll(frame, script, ...)
-	self:HookScript(frame, script)
+	self:SecureHookScript(frame, script)
 	for i = 1, select("#", ...) do
 		local f = select(i, ...)
-		self:HookScript(f, script)
+		self:SecureHookScript(f, script)
 	end
 end
 
